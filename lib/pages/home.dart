@@ -1,10 +1,9 @@
-import 'dart:ffi';
-
 import 'package:asdasda/pages/home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:asdasda/services/database.dart';
 import 'package:asdasda/pages/employee.dart';
+import 'package:random_string/random_string.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -16,6 +15,10 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   TextEditingController nameController = TextEditingController();
   TextEditingController ageController = TextEditingController();
+
+  TextEditingController nameAddController = TextEditingController();
+  TextEditingController ageAddController = TextEditingController();
+  TextEditingController idController = TextEditingController();
   Stream? EmployeeStream;
   getontheload() async {
     EmployeeStream = await DatabaseMethod().getData();
@@ -103,10 +106,8 @@ class _HomeState extends State<Home> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => Employee()),
-          );
+          addUsers();
+          
         },
         child: Icon(Icons.add),
       ),
@@ -138,6 +139,109 @@ class _HomeState extends State<Home> {
       ),
     );
   }
+
+  Future addUsers() => showDialog(
+    context: context,
+    builder:
+        (context) => AlertDialog(
+          content: Container(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      child: Icon(Icons.cancel),
+                    ),
+                    Text(
+                      "Add ",
+                      style: TextStyle(
+                        color: Colors.blue,
+                        fontSize: 25,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      "User",
+                      style: TextStyle(
+                        color: Colors.green,
+                        fontSize: 25,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                Text(
+                  "Name",
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+
+                Container(
+                  padding: EdgeInsets.only(left: 5),
+                  decoration: BoxDecoration(
+                    border: Border.all(),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+
+                  child: TextField(
+                    controller: nameAddController,
+                    decoration: InputDecoration(border: InputBorder.none),
+                  ),
+                ),
+                SizedBox(height: 20),
+                Text(
+                  "Age",
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+
+                Container(
+                  padding: EdgeInsets.only(left: 5),
+                  decoration: BoxDecoration(
+                    border: Border.all(),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+
+                  child: TextField(
+                    controller: ageAddController,
+                    decoration: InputDecoration(border: InputBorder.none),
+                  ),
+                ),
+                SizedBox(height: 5),
+                Center(
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      String id = randomAlphaNumeric(10);
+                      Map<String, dynamic> addInfo = {
+                        "Id": id,
+                        "Name": nameAddController.text,
+                        "Age": ageAddController.text,
+                      };
+                      await DatabaseMethod().addEmployee(addInfo, id).then((
+                        value,
+                      ) {
+                       ageAddController.text="";
+                       nameAddController.text="";
+                      });
+                    },
+                    child: Text("Đã thêm"),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+  );
 
   Future editUsers(String id) => showDialog(
     context: context,
