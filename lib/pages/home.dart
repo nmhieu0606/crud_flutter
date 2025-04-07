@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:asdasda/services/database.dart';
 import 'package:asdasda/pages/employee.dart';
 import 'package:random_string/random_string.dart';
+import 'package:confirm_dialog/confirm_dialog.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -73,7 +74,12 @@ class _HomeState extends State<Home> {
                             ),
                             GestureDetector(
                               onTap: () async {
-                                await DatabaseMethod().deleteUser(ds["Id"]);
+                                if (await confirm(context,title: Text('Xóa người dùng'),content: const Text('Bạn có muốn xóa'))) {
+                                 
+                                  DatabaseMethod().deleteUser(ds["Id"]);
+                                }
+                              
+                               
                               },
                               child: Icon(
                                 Icons.delete_forever,
@@ -107,7 +113,6 @@ class _HomeState extends State<Home> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           addUsers();
-          
         },
         child: Icon(Icons.add),
       ),
@@ -230,8 +235,8 @@ class _HomeState extends State<Home> {
                       await DatabaseMethod().addEmployee(addInfo, id).then((
                         value,
                       ) {
-                       ageAddController.text="";
-                       nameAddController.text="";
+                        ageAddController.text = "";
+                        nameAddController.text = "";
                       });
                     },
                     child: Text("Đã thêm"),
