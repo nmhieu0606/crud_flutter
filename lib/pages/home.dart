@@ -17,6 +17,8 @@ class _HomeState extends State<Home> {
   TextEditingController nameController = TextEditingController();
   TextEditingController ageController = TextEditingController();
 
+  TextEditingController searchController = TextEditingController();
+
   TextEditingController nameAddController = TextEditingController();
   TextEditingController ageAddController = TextEditingController();
   TextEditingController idController = TextEditingController();
@@ -28,6 +30,19 @@ class _HomeState extends State<Home> {
 
   void initState() {
     getontheload();
+    searchController.addListener(() {
+      setState(() {
+        if (searchController.text == "") {
+          getontheload();
+        }
+        EmployeeStream =
+            FirebaseFirestore.instance
+                .collection('users')
+                .where('Name', isGreaterThanOrEqualTo: searchController.text)
+                .where('Name', isLessThan: searchController.text + 'z')
+                .snapshots();
+      });
+    });
     super.initState();
   }
 
@@ -50,6 +65,7 @@ class _HomeState extends State<Home> {
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(10),
                     ),
+
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -74,12 +90,13 @@ class _HomeState extends State<Home> {
                             ),
                             GestureDetector(
                               onTap: () async {
-                                if (await confirm(context,title: Text('Xóa người dùng'),content: const Text('Bạn có muốn xóa'))) {
-                                 
+                                if (await confirm(
+                                  context,
+                                  title: Text('Xóa người dùng'),
+                                  content: const Text('Bạn có muốn xóa'),
+                                )) {
                                   DatabaseMethod().deleteUser(ds["Id"]);
                                 }
-                              
-                               
                               },
                               child: Icon(
                                 Icons.delete_forever,
@@ -140,7 +157,19 @@ class _HomeState extends State<Home> {
       ),
       body: Container(
         margin: EdgeInsets.only(left: 10, right: 10, top: 30),
-        child: Column(children: [Expanded(child: getUsers())]),
+        child: Column(
+          children: [
+            TextField(
+              controller: searchController,
+              decoration: InputDecoration(
+                hintText: 'Name',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            SizedBox(height: 30),
+            Expanded(child: getUsers()),
+          ],
+        ),
       ),
     );
   }
@@ -239,7 +268,7 @@ class _HomeState extends State<Home> {
                         nameAddController.text = "";
                       });
                     },
-                    child: Text("Đã thêm"),
+                    child: Text("Thêm"),
                   ),
                 ),
               ],
